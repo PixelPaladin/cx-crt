@@ -104,24 +104,22 @@ Public
 		effect._material.SetScalar("m_scale_y", v)
 	End
 	
-	Method ShapeX:Float() Property
+	Method CurvatureX:Float() Property
 		Return curve_x
 	End
-	Method ShapeX:Void(v:Float) Property
+	Method CurvatureX:Void(v:Float) Property
 		curve_x = v
 		effect._material.SetScalar("m_curve_x", v)
 	End
 	
-	Method ShapeY:Float() Property
+	Method CurvatureY:Float() Property
 		Return curve_y
 	End
-	Method ShapeY:Void(v:Float) Property
+	Method CurvatureY:Void(v:Float) Property
 		curve_y = v
 		effect._material.SetScalar("m_curve_y", v)
 	End
 	
-	#rem The virtual screen resolution (between 32x16 and 800x600, default value is 320x240).
-	#end
 	Method ResolutionX:Int() Property
 		Return Int(resolution_x)
 	End
@@ -142,8 +140,6 @@ Public
 		effect._material.SetScalar("m_resolution_y", v)
 	End
 	
-	#rem The scanline intensity (between 0.0 and 1.0, default value is 0.2).
-	#end
 	Method ScanlineIntensity:Float() Property
 		Return scanline_intensity
 	End
@@ -154,20 +150,16 @@ Public
 		effect._material.SetScalar("m_scanline_intensity", v)
 	End
 	
-	#rem The grb split intensity (between 0.0 and 1.0, default value is 0.4).
-	#end
-	Method RgbSplitIntensity:Float() Property
+	Method RGBSplitIntensity:Float() Property
 		Return rgb_split_intensity
 	End
-	Method RgbSplitIntensity:Void(v:Float) Property
+	Method RGBSplitIntensity:Void(v:Float) Property
 		If v < 0.0 Then v = 0.0
 		If v > 1.0 Then v = 1.0
 		rgb_split_intensity = v
 		effect._material.SetScalar("m_rgb_split_intensity", v)
 	End
 	
-	#rem The brightness value (between 0.0 and 1.0, default value is 0.5).
-	#end
 	Method Brightness:Float() Property
 		Return brightness
 	End
@@ -178,8 +170,6 @@ Public
 		effect._material.SetScalar("m_brightness", v)
 	End
 	
-	#rem The contrast value (between 0.0 and 1.0, default value is 0.5).
-	#end
 	Method Contrast:Float() Property
 		Return contrast
 	End
@@ -190,8 +180,6 @@ Public
 		effect._material.SetScalar("m_contrast", v)
 	End
 	
-	#rem The gamma value (between 0.0 and 1.0, default value is 0.5).
-	#end
 	Method Gamma:Float() Property
 		Return gamma
 	End
