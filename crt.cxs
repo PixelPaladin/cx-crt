@@ -1,0 +1,235 @@
+
+Strict
+
+Import mojo2
+
+Import "data/tvscreen.png"
+Import "data/crt.glsl"
+
+Class CRTShader Extends Shader
+Private
+	Global _instance:CRTShader
+	
+Public
+	Method New()
+		Build( LoadString( "crt.glsl" ) )
+	End
+	
+	'must implement this - sets valid/default material params
+	Method OnInitMaterial:Void( material:Material )
+		material.SetTexture("ColorTexture", Texture.White())
+		material.SetScalar("m_curve_x", 1.0)
+		material.SetScalar("m_curve_y", 1.0)
+		material.SetScalar("m_scale_x", 1.0)
+		material.SetScalar("m_scale_y", 1.0)
+		material.SetScalar("m_translate_x", 0.0)
+		material.SetScalar("m_translate_y", 0.0)
+		material.SetScalar("m_resolution_x", 320.0)
+		material.SetScalar("m_resolution_y", 240.0)
+		material.SetScalar("m_scanline_intensity", 0.2)
+		material.SetScalar("m_rgb_split_intensity", 0.4)
+		material.SetScalar("m_brightness", 0.5)
+		material.SetScalar("m_contrast", 0.5)
+		material.SetScalar("m_gamma", 0.5)
+	End
+	
+	Function Instance:CRTShader()
+		If Not _instance _instance=New CRTShader
+		Return _instance
+	End
+End
+
+Class CRTShaderEffect
+Private
+	Field _material:Material
+	Global _canvas:Canvas
+	
+Public
+	Method New()
+		If Not _canvas _canvas = New Canvas
+
+		_material=New Material( CRTShader.Instance() )
+	End
+	
+	Method Render:Void(source:Image, target:Image)
+		_material.SetTexture("ColorTexture", source.Material.ColorTexture)
+		
+		_canvas.SetRenderTarget(target)
+		_canvas.SetViewport(0, 0, target.Width, target.Height)
+		_canvas.SetProjection2d(0, target.Width, 0, target.Height)
+		
+		_canvas.DrawRect(0, 0, target.Width, target.Height, _material)
+		
+		_canvas.Flush()
+	End
+End
+
+Class GraphicsCRT
+Private
+	Global overlayImg:Image = Null
+
+	Field crtCanvas:Canvas
+	Field effect:CRTShaderEffect
+	Field sourceImage:Image
+	Global targetImage:Image
+	
+	Field curve_x:Float = 1.0
+	Field curve_y:Float = 1.0
+	Field scale_x:Float = 1.0
+	Field scale_y:Float = 1.0
+	Field translate_x:Float = 0.0
+	Field translate_y:Float = 0.0
+	Field resolution_x:Float = 320.0
+	Field resolution_y:Float = 240.0
+	Field scanline_intensity:Float = 0.2
+	Field rgb_split_intensity:Float = 0.4
+	Field brightness:Float = 0.5
+	Field contrast:Float = 0.5
+	Field gamma:Float = 0.5
+	
+Public
+	Method ScaleX:Float() Property
+		Return scale_x
+	End
+	Method ScaleX:Void(v:Float) Property
+		scale_x = v
+		effect._material.SetScalar("m_scale_x", v)
+	End
+	
+	Method ScaleY:Float() Property
+		Return scale_y
+	End
+	Method ScaleY:Void(v:Float) Property
+		scale_y = v
+		effect._material.SetScalar("m_scale_y", v)
+	End
+	
+	Method ShapeX:Float() Property
+		Return curve_x
+	End
+	Method ShapeX:Void(v:Float) Property
+		curve_x = v
+		effect._material.SetScalar("m_curve_x", v)
+	End
+	
+	Method ShapeY:Float() Property
+		Return curve_y
+	End
+	Method ShapeY:Void(v:Float) Property
+		curve_y = v
+		effect._material.SetScalar("m_curve_y", v)
+	End
+	
+	#rem The virtual screen resolution (between 32x16 and 800x600, default value is 320x240).
+	#end
+	Method ResolutionX:Int() Property
+		Return Int(resolution_x)
+	End
+	Method ResolutionX:Void(v:Int) Property
+		If v < 32  Then v = 32
+		If v > 800 Then v = 800
+		resolution_x = v
+		effect._material.SetScalar("m_resolution_x", v)
+	End
+	
+	Method ResolutionY:Int() Property
+		Return Int(resolution_y)
+	End
+	Method ResolutionY:Void(v:Int) Property
+		If v < 16  Then v = 16
+		If v > 600 Then v = 600
+		resolution_y = v
+		effect._material.SetScalar("m_resolution_y", v)
+	End
+	
+	#rem The scanline intensity (between 0.0 and 1.0, default value is 0.2).
+	#end
+	Method ScanlineIntensity:Float() Property
+		Return scanline_intensity
+	End
+	Method ScanlineIntensity:Void(v:Float) Property
+		If v < 0.0 Then v = 0.0
+		If v > 1.0 Then v = 1.0
+		scanline_intensity = v
+		effect._material.SetScalar("m_scanline_intensity", v)
+	End
+	
+	#rem The grb split intensity (between 0.0 and 1.0, default value is 0.4).
+	#end
+	Method RgbSplitIntensity:Float() Property
+		Return rgb_split_intensity
+	End
+	Method RgbSplitIntensity:Void(v:Float) Property
+		If v < 0.0 Then v = 0.0
+		If v > 1.0 Then v = 1.0
+		rgb_split_intensity = v
+		effect._material.SetScalar("m_rgb_split_intensity", v)
+	End
+	
+	#rem The brightness value (between 0.0 and 1.0, default value is 0.5).
+	#end
+	Method Brightness:Float() Property
+		Return brightness
+	End
+	Method Brightness:Void(v:Float) Property
+		If v < 0.0 Then v = 0.0
+		If v > 1.0 Then v = 1.0
+		brightness = v
+		effect._material.SetScalar("m_brightness", v)
+	End
+	
+	#rem The contrast value (between 0.0 and 1.0, default value is 0.5).
+	#end
+	Method Contrast:Float() Property
+		Return contrast
+	End
+	Method Contrast:Void(v:Float) Property
+		If v < 0.0 Then v = 0.0
+		If v > 1.0 Then v = 1.0
+		contrast = v
+		effect._material.SetScalar("m_contrast", v)
+	End
+	
+	#rem The gamma value (between 0.0 and 1.0, default value is 0.5).
+	#end
+	Method Gamma:Float() Property
+		Return gamma
+	End
+	Method Gamma:Void(v:Float) Property
+		If v < 0.0 Then v = 0.0
+		If v > 1.0 Then v = 1.0
+		gamma = v
+		effect._material.SetScalar("m_gamma", v)
+	End
+	
+	Method New(width:Int = 320, height:Int = 240)
+		If Not overlayImg Then overlayImg = Image.Load("tvscreen.png")
+		
+		sourceImage = New Image(800, 600, 0.0, 0.0, Image.Filter|Image.Mipmap)
+		If Not targetImage Then targetImage = New Image(DesktopMode().Width, DesktopMode().Height, 0.0, 0.0, Image.Filter|Image.Mipmap)
+		
+		effect = New CRTShaderEffect
+		
+		ResolutionX = width
+		ResolutionY = height
+
+		crtCanvas = New Canvas(sourceImage)
+	End
+	
+	Method Canvas:Canvas() Property
+		Return crtCanvas
+	End
+	
+	Method DrawScreen:Void(targetCanvas:Canvas, x:Float, y:Float, width:Float, height:Float)
+		crtCanvas.Flush()
+		If targetCanvas = Null Then Return
+		
+		effect.Render(sourceImage, targetImage)
+		
+		targetCanvas.DrawRect(x, y, width, height, targetImage)
+		
+		targetCanvas.SetColor(1.0, 1.0, 1.0, 1.0)
+		targetCanvas.DrawRect(x, y, width, height, overlayImg)
+	End
+End
+
