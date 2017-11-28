@@ -1,0 +1,160 @@
+
+Strict
+
+Import mojo2
+Import crt
+
+'=====================================================================
+	Const Fullscreen:Int         =  1 ' glfw3, xna
+	Const Resizable_window:Int   =  2 ' glfw3
+	Const Decorated_window:Int   =  4 ' glfw3
+	Const Floating_window:Int    =  8 ' glfw3
+	Const Depth_buffered:Int     = 16 ' glfw3
+	Const Single_buffered:Int    = 32 ' glfw3
+	Const Use_second_monitor:Int = 64 ' glfw3
+'=====================================================================
+
+Class MyApp Extends App
+	Field fullscreen:Bool = False
+	Field mode:Int = 0
+	Field menuVisible:Bool = True
+	
+	Field testImage:Image[3]
+	
+	Field crt:GraphicsCRT
+	
+	Field canvas:Canvas
+	
+	Field ani:Float = 0.0
+	
+	Method OnCreate:Int()
+		SetDeviceWindow( 800, 600, Decorated_window|Resizable_window)
+		
+		testImage[0] = Image.Load("test1.jpg")
+		testImage[1] = Image.Load("test2.jpg")
+		testImage[2] = Image.Load("test3.jpg")
+		
+		crt = New GraphicsCRT(256, 224)
+		
+		canvas = New Canvas
+		Return 0
+	End
+	
+	Method OnUpdate:Int()
+		If KeyHit(KEY_ESCAPE) Then EndApp()
+		If KeyHit(KEY_F11) Then
+			fullscreen = Not fullscreen
+			If fullscreen Then
+				SetDeviceWindow( DesktopMode().Width, DesktopMode().Height, Fullscreen)
+			Else
+				SetDeviceWindow( 640, 480, Decorated_window|Resizable_window)
+			End
+		End
+		
+		If MouseDown(MOUSE_LEFT) Then
+			Select mode
+			Case 0
+				crt.Brightness = Float(MouseX())/Float(DeviceWidth())
+			Case 1
+				crt.Contrast = Float(MouseX())/Float(DeviceWidth())
+			Case 2
+				crt.Gamma = Float(MouseX())/Float(DeviceWidth())
+			Case 3
+				crt.ResolutionX = Float(MouseX()+31)/Float(DeviceWidth()+31)*800.0+1
+				crt.ResolutionY = Float(MouseY()+16)/Float(DeviceHeight()+16)*600.0+1
+			Case 4
+				crt.CurvatureX = (Float(MouseX())/Float(DeviceWidth())-0.5)*20.0
+				crt.CurvatureY = (Float(MouseY())/Float(DeviceHeight())-0.5)*20.0
+			Case 5
+				crt.ScaleX = (Float(MouseX())/Float(DeviceWidth())-0.5)*4.0
+				crt.ScaleY = (Float(MouseY())/Float(DeviceHeight())-0.5)*4.0
+			Case 6
+				crt.ScanlineIntensity = Float(MouseX())/Float(DeviceWidth())
+			Case 7
+				crt.RGBSplitIntensity = Float(MouseX())/Float(DeviceWidth())
+			End
+		End
+		
+		If KeyHit(KEY_M) Then menuVisible = Not menuVisible
+		
+		If KeyHit(KEY_UP)   Then mode -= 1
+		If KeyHit(KEY_DOWN) Then mode += 1
+		If mode < 0 Then mode = 7
+		If mode > 7 Then mode = 0
+		
+		ani += 1.0
+		
+		Return 0
+	End
+	
+	Method OnRender:Int()
+		canvas.SetViewport(0, 0, DeviceWidth(), DeviceHeight())
+		canvas.SetProjection2d(0, DeviceWidth(), 0, DeviceHeight())
+		
+		canvas.Clear()
+		
+		Local i1:Int = (ani/300) Mod 3
+		Local z1:Float = 0.125*(ani Mod 300.0)/300.0
+		
+		Local crtCanvas:Canvas = crt.Canvas()
+		crtCanvas.Clear(0.0, 1.0, 0.0, 1.0)
+		crtCanvas.DrawRect(0.0-Float(crt.ResolutionX)*z1,
+		                   0.0-Float(crt.ResolutionY)*z1,
+		                   crt.ResolutionX+Float(crt.ResolutionX)*z1*2.0,
+		                   crt.ResolutionY+Float(crt.ResolutionY)*z1*2.0,
+		                   testImage[i1])
+		
+		
+		' menu
+		If menuVisible Then
+			crtCanvas.SetBlendMode(BlendMode.Multiply)
+			crtCanvas.SetColor(0.0, 0.0, 0.0, 0.75)
+			crtCanvas.DrawRect(0,0,220, 224)
+			crtCanvas.SetBlendMode(BlendMode.Alpha)
+			crtCanvas.SetColor(1.0, 1.0, 1.0, 1.0)
+			crtCanvas.DrawText("MODE", 5, 5)
+			crtCanvas.DrawText("  brightness", 5, 20+0*14)
+			crtCanvas.DrawText("  contrast",   5, 20+1*14)
+			crtCanvas.DrawText("  gamma",      5, 20+2*14)
+			crtCanvas.DrawText("  resolution", 5, 20+3*14)
+			crtCanvas.DrawText("  curvature",  5, 20+4*14)
+			crtCanvas.DrawText("  scale",      5, 20+5*14)
+			crtCanvas.DrawText("  scanlines",  5, 20+6*14)
+			crtCanvas.DrawText("  rgb-split",  5, 20+7*14)
+		
+			crtCanvas.DrawText(String(crt.Brightness)[..4], 120, 20+0*14)
+			crtCanvas.DrawText(String(crt.Contrast)[..4],   120, 20+1*14)
+			crtCanvas.DrawText(String(crt.Gamma)[..4],      120, 20+2*14)
+			crtCanvas.DrawText(crt.ResolutionX+"x"+crt.ResolutionY, 120, 20+3*14)
+			crtCanvas.DrawText(String(crt.CurvatureX)[..5]+";"+String(crt.CurvatureY)[..5], 120, 20+4*14)
+			crtCanvas.DrawText(String(crt.ScaleX)[..5]+";"+String(crt.ScaleY)[..5], 120, 20+5*14)
+			crtCanvas.DrawText(String(crt.ScanlineIntensity)[..4], 120, 20+6*14)
+			crtCanvas.DrawText(String(crt.RGBSplitIntensity)[..4],   120, 20+7*14)
+		
+			crtCanvas.DrawText(">", 5, 20+mode*14)
+		
+			crtCanvas.DrawText("+ click and drag mouse to", 5, 20+ 9*14)
+			crtCanvas.DrawText("  change values",           5, 20+10*14)
+			crtCanvas.DrawText("+ press F11 to toggle",     5, 20+11*14)
+			crtCanvas.DrawText("  fullscreen mode",         5, 20+12*14)
+			crtCanvas.DrawText("+ press M to toggle menu",  5, 20+13*14)
+			crtCanvas.SetColor(1.0, 1.0, 1.0, 1.0)
+		End
+		
+		' draw crt screen on canvas:
+		If Float(DeviceWidth())/Float(DeviceHeight()) < 4.0/3.0 Then
+			crt.DrawScreen(canvas, 0, Int(DeviceHeight()-Int(Float(DeviceWidth())*3.0/4.0))/2.0, DeviceWidth(), Int(Float(DeviceWidth())*3.0/4.0))
+		Else
+			crt.DrawScreen(canvas, Int(DeviceWidth()-Int(Float(DeviceHeight())*4.0/3.0))/2.0, 0, Int(Float(DeviceHeight())*4.0/3.0), DeviceHeight())
+		End
+		
+		canvas.Flush()
+		Return 0
+	End
+End
+
+Function Main:Int()
+	New MyApp
+	Return 0
+End
+
