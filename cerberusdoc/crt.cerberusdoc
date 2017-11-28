@@ -1,0 +1,137 @@
+# Module crt
+The crt shader module provides functionality for rendering graphics
+with the look and feel of an old crt tv.
+
+
+# Import mojo2
+
+
+# Class GraphicsCRT
+
+
+# Method ScaleX:Float() Property
+
+Get the horizontal scale of the screen image.
+
+
+# Method ScaleX:Void(v:Float) Property
+
+Set the horizontal scale of the screen image.
+
+
+# Method ScaleY:Float() Property
+
+Get the vertical scale of the screen image.
+
+
+# Method ScaleY:Void(v:Float) Property
+
+Set the vertical scale of the screen image.
+
+
+# Method CurvatureX:Float() Property
+
+Get the screen curvature (x axis).
+
+
+# Method CurvatureX:Void(v:Float) Property
+
+Set the screen curvature (x axis).
+
+
+# Method CurvatureY:Float() Property
+
+Get the screen curvature (y axis).
+
+
+# Method CurvatureY:Void(v:Float) Property
+
+Set the screen curvature (y axis).
+
+
+# Method ResolutionX:Int() Property
+
+Get the horizontal part of the virtual screen resolution.
+
+
+# Method ResolutionX:Void(v:Int) Property
+
+Set the horizontal part of the virtual screen resolution (between 32 and 800, default value is 320).
+
+
+# Method ResolutionY:Int() Property
+
+Get the vertical part of the virtual screen resolution.
+
+
+# Method ResolutionY:Void(v:Int) Property
+
+Set the vertical part of the virtual screen resolution (between 16 and 600, default value is 240).
+
+
+# Method ScanlineIntensity:Float() Property
+
+Get the scanline intensity.
+
+
+# Method ScanlineIntensity:Void(v:Float) Property
+
+Set the scanline intensity (between 0.0 and 1.0, default value is 0.2).
+
+
+# Method RGBSplitIntensity:Float() Property
+
+Get the grb split intensity.
+
+
+# Method RGBSplitIntensity:Void(v:Float) Property
+
+Set the grb split intensity (between 0.0 and 1.0, default value is 0.4).
+
+
+# Method Brightness:Float() Property
+
+Get the brightness of the virtual screen.
+
+
+# Method Brightness:Void(v:Float) Property
+
+Set the brightness of the virtual screen (between 0.0 and 1.0, default value is 0.5).
+
+
+# Method Contrast:Float() Property
+
+Get the contrast of the virtual screen.
+
+
+# Method Contrast:Void(v:Float) Property
+
+Set the contrast of the virtual screen (between 0.0 and 1.0, default value is 0.5).
+
+
+# Method Gamma:Float() Property
+
+Get the gamma of the virtual screen.
+
+
+# Method Gamma:Void(v:Float) Property
+
+Set the gamma of the virtual screen (between 0.0 and 1.0, default value is 0.5).
+
+
+# Method New(width:Int = 320, height:Int = 240)
+
+Creates a new virtual crt screen.
+
+
+# Method Canvas:Canvas() Property
+
+Get the screen canvas.
+
+
+# Method DrawScreen:Void(targetCanvas:Canvas, x:Float, y:Float, width:Float, height:Float)
+
+Render the virtual crt screen onto a canvas.
+
+
+
